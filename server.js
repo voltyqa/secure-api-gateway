@@ -1,36 +1,27 @@
-// server.js
-
-require('dotenv').config();           // .env file se variables load karne ke liye
+require('dotenv').config();
 const express = require('express');
-const helmet = require('helmet');     // security headers ke liye
-const morgan = require('morgan');     // request logging ke liye
-const rateLimit = require('express-rate-limit'); // DDoS attack ke liye limiter
-
-const firewall = require('./middleware/firewall');  // custom firewall middleware
-
 const app = express();
+
 const PORT = process.env.PORT || 3000;
 
-app.use(helmet());               // Security headers add karo
-app.use(express.json());         // JSON request body parse karo
-app.use(morgan('combined'));     // HTTP request logs console pe dikhao
+app.use(express.json());
 
-// Rate limiting middleware - 15 minutes me 100 requests max per IP
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-});
-app.use(limiter);
-
-// Custom firewall middleware lagao
-app.use(firewall);
-
-// Test route (API endpoint)
-app.get('/secure-data', (req, res) => {
-  res.json({ message: 'Secure data accessed!' });
+// ✅ Root route — GET /
+app.get('/', (req, res) => {
+  res.send('API Gateway is running!');
 });
 
-// Server ko start karo
+// ✅ POST route — /submit
+app.post('/submit', (req, res) => {
+  const { name, email } = req.body;
+
+  if (!name || !email) {
+    return res.status(400).json({ error: 'Name and email are required.' });
+  }
+
+  res.json({ message: 'Data received successfully', data: { name, email } });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
