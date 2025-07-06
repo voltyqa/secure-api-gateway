@@ -1,12 +1,14 @@
 // middleware/firewall.js
 
 const blockedIPs = [
-  160.202.36.25, // Add malicious IPs here
+  "160.202.36.25", // Add malicious IPs here
 ];
 
 const firewall = (req, res, next) => {
-  const clientIP =
-    req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  const xForwardedFor = req.headers['x-forwarded-for'];
+  const clientIP = xForwardedFor
+    ? xForwardedFor.split(',')[0].trim()
+    : req.socket.remoteAddress;
 
   if (blockedIPs.includes(clientIP)) {
     console.log(`❌ Blocked IP: ${clientIP}`);
