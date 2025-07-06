@@ -1,17 +1,22 @@
-require('dotenv').config();
 const express = require('express');
+const dotenv = require('dotenv');
+const applySecurity = require('./middleware/security');
+const bodyParser = require('body-parser');
+
+dotenv.config();
 const app = express();
+const port = process.env.PORT || 3000;
 
-const PORT = process.env.PORT || 3000;
+app.use(bodyParser.json());
 
-app.use(express.json());
+// 🔐 Apply security middleware
+applySecurity(app);
 
-// ✅ Root route — GET /
+// ✅ Routes
 app.get('/', (req, res) => {
   res.send('API Gateway is running!');
 });
 
-// ✅ POST route — /submit
 app.post('/submit', (req, res) => {
   const { name, email } = req.body;
 
@@ -19,9 +24,12 @@ app.post('/submit', (req, res) => {
     return res.status(400).json({ error: 'Name and email are required.' });
   }
 
-  res.json({ message: 'Data received successfully', data: { name, email } });
+  res.json({
+    message: 'Data received successfully',
+    data: { name, email },
+  });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
