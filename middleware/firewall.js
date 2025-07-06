@@ -1,13 +1,19 @@
-module.exports = function (req, res, next) {
-  const ip = req.ip;
+// middleware/firewall.js
 
-  // Simple SQL injection pattern block
-  const sqlInjectionPattern = /(\%27)|(\')|(\-\-)|(\%23)|(#)/i;
-  if (sqlInjectionPattern.test(req.url)) {
-    return res.status(403).send("Blocked: Potential SQL Injection");
+const blockedIPs = [
+  160.202.36.25, // Add malicious IPs here
+];
+
+const firewall = (req, res, next) => {
+  const clientIP =
+    req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+  if (blockedIPs.includes(clientIP)) {
+    console.log(`❌ Blocked IP: ${clientIP}`);
+    return res.status(403).json({ error: 'Access denied' });
   }
-
-  // TODO: Add logic to detect brute force or DDoS here
 
   next();
 };
+
+module.exports = firewall;

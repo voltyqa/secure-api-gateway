@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const applySecurity = require('./middleware/security');
+const firewall = require('./middleware/firewall');
 const bodyParser = require('body-parser');
 
 dotenv.config();
@@ -9,10 +10,9 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
-// 🔐 Apply security middleware
-applySecurity(app);
+applySecurity(app);     // helmet, morgan, rate limiter
+app.use(firewall);      // 🛡️ custom firewall
 
-// ✅ Routes
 app.get('/', (req, res) => {
   res.send('API Gateway is running!');
 });
